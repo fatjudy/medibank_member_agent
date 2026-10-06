@@ -26,6 +26,7 @@ class EscalationCategory(str, Enum):
     MEDICAL_ADVICE = "medical_advice"
     OUT_OF_SCOPE = "out_of_scope"
     LOW_CONFIDENCE = "low_confidence"
+    EMERGENCY = "emergency"
 
 
 class Chunk(BaseModel):
