@@ -63,7 +63,7 @@ def chunk_doc(lines: list[Line], doc: DocName) -> list[Chunk]:
         text = " ".join(body).strip()
         if not text:
             return
-        section = " > ".join(h for h in path if h)
+        section = " > ".join(h for h in path if h) or "Preface"  # text before the first heading
         for part in split_long(text):
             chunks.append(Chunk(
                 chunk_id=f"{doc.value}-p{start_page}-{len(chunks):03d}",

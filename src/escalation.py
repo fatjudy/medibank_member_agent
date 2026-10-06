@@ -71,6 +71,15 @@ class Classification(BaseModel):
     reason: str
 
 
+# The only categories the LLM classifier may return; EMERGENCY and LOW_CONFIDENCE are set by our code.
+CLASSIFIER_CATEGORIES = {
+    EscalationCategory.ACCOUNT_SPECIFIC,
+    EscalationCategory.COMPLAINT,
+    EscalationCategory.MEDICAL_ADVICE,
+    EscalationCategory.OUT_OF_SCOPE,
+}
+
+
 def escalate(category: EscalationCategory, reason: str) -> EscalationDecision:
     return EscalationDecision(escalate=True, category=category, reason=reason)
 
@@ -92,9 +101,7 @@ def check_question(question: str) -> EscalationDecision:
         output_format=Classification,
     )
     result = response.parsed_output
-    if result is None or result.category == EscalationCategory.NONE:
-        return NO_ESCALATION
-    if result.category not in MESSAGES:   # the classifier may only pick the five listed categories
+    if result is None or result.category not in CLASSIFIER_CATEGORIES:
         return NO_ESCALATION
     return escalate(result.category, result.reason)
 

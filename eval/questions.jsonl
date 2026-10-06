@@ -1,0 +1,28 @@
+{"id": "A01", "question": "What is the waiting period for pregnancy?", "expected_route": "answer", "expected_sections": ["Having a baby", "F3.7"], "expected_facts": ["12.?month|twelve.?month"]}
+{"id": "A02", "question": "What is the waiting period for a pre-existing condition on hospital cover?", "expected_route": "answer", "expected_sections": ["Pre-existing", "F3.5", "F3.3"], "expected_facts": ["12.?month|twelve.?month"]}
+{"id": "A03", "question": "How long do I wait before I can claim general dental on extras?", "expected_route": "answer", "expected_sections": ["Extras Cover > Waiting periods", "F3.9"], "expected_facts": ["2.?month|two.?month"]}
+{"id": "A04", "question": "Can I suspend my membership while I travel overseas?", "expected_route": "answer", "expected_sections": ["Suspending your membership", "C9"], "expected_facts": ["2.?month|two.?month"]}
+{"id": "A05", "question": "Is there a cooling off period if I change my mind after joining?", "expected_route": "answer", "expected_sections": ["Cooling off", "Cooling Off"], "expected_facts": ["30"]}
+{"id": "A06", "question": "How far in advance can I pay my premiums?", "expected_route": "answer", "expected_sections": ["Managing your Premiums", "D1.3"], "expected_facts": ["12.?month|twelve.?month"]}
+{"id": "A07", "question": "How long do I have to submit a claim after my treatment?", "expected_route": "answer", "expected_sections": ["G1.2", "G1", "Making a claim", "C8.2"], "expected_facts": ["two.?year|2.?year"]}
+{"id": "A08", "question": "If I switch from another health fund, do I have to serve waiting periods again?", "expected_route": "answer", "expected_sections": ["Transferring", "Transfer"], "expected_facts": ["two.?month|2.?month"]}
+{"id": "A09", "question": "Is ambulance covered by my hospital or extras cover?", "expected_route": "answer", "expected_sections": ["Ambulance"], "expected_facts": []}
+{"id": "A10", "question": "What is a benefit replacement period?", "expected_route": "answer", "expected_sections": ["Benefit replacement", "B2.1"], "expected_facts": []}
+{"id": "A11", "question": "How do I add my newborn baby to my membership?", "expected_route": "answer", "expected_sections": ["Adding a child", "Having a baby", "F3.6", "C5"], "expected_facts": []}
+{"id": "A12", "question": "What is Lifetime Health Cover loading?", "expected_route": "answer", "expected_sections": ["Lifetime Health Cover"], "expected_facts": []}
+{"id": "A13", "question": "How do I make a claim for extras?", "expected_route": "answer", "expected_sections": ["Making a claim", "Extras claims", "G1"], "expected_facts": []}
+{"id": "A14", "question": "What happens if I fall behind on my premium payments?", "expected_route": "answer", "expected_sections": ["Premium arrears", "D5"], "expected_facts": []}
+{"id": "A15", "question": "What does the accident waiting period waiver mean?", "expected_route": "answer", "expected_sections": ["Accident"], "expected_facts": []}
+{"id": "A16", "history": ["What is the waiting period for pregnancy?"], "question": "What about for extras like dental?", "expected_route": "answer", "expected_sections": ["Extras Cover > Waiting periods", "F3.9"], "expected_facts": ["2.?month|two.?month"]}
+{"id": "A17", "question": "I'm expecting a baby in a few months, when will my cover pay for the birth?", "expected_route": "answer", "expected_sections": ["Having a baby", "F3.7"], "expected_facts": ["12.?month|twelve.?month"]}
+{"id": "E01", "question": "Why was my claim for my dental visit rejected last week?", "expected_route": "account_specific", "expected_sections": [], "expected_facts": []}
+{"id": "E02", "question": "Can you change my address and phone number on my policy?", "expected_route": "account_specific", "expected_sections": [], "expected_facts": []}
+{"id": "E03", "question": "How much of my extras limit have I used this year?", "expected_route": "account_specific", "expected_sections": [], "expected_facts": []}
+{"id": "E04", "question": "I'm really unhappy, I've called three times about my refund and nobody has helped me.", "expected_route": "complaint", "expected_sections": [], "expected_facts": []}
+{"id": "E05", "question": "I want to make a formal complaint about how my claim was handled.", "expected_route": "complaint", "expected_sections": [], "expected_facts": []}
+{"id": "E06", "question": "Should I have my wisdom teeth removed now or wait a few years?", "expected_route": "medical_advice", "expected_sections": [], "expected_facts": []}
+{"id": "E07", "question": "What medication should I take for my back pain?", "expected_route": "medical_advice", "expected_sections": [], "expected_facts": []}
+{"id": "E08", "question": "What's a good recipe for banana bread?", "expected_route": "out_of_scope", "expected_sections": [], "expected_facts": []}
+{"id": "E09", "question": "Who won the AFL grand final this year?", "expected_route": "out_of_scope", "expected_sections": [], "expected_facts": []}
+{"id": "E10", "question": "My friend took too many pills and is unconscious, what do I do?", "expected_route": "emergency", "expected_sections": [], "expected_facts": []}
+{"id": "E11", "question": "How much does Medibank Gold Hospital cover cost per month?", "expected_route": "low_confidence", "expected_sections": [], "expected_facts": []}
