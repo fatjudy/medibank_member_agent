@@ -5,3 +5,4 @@ __pycache__/
 data/index/
 docs/assignment.docx
 .ipynb_checkpoints/
+logs/
