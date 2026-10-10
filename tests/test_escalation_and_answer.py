@@ -39,7 +39,7 @@ def use_fake_client(monkeypatch, module, parsed_output, stop_reason="end_turn") 
 ])
 def test_emergencies_are_caught_by_rules_without_calling_the_llm(monkeypatch, question):
     fake = use_fake_client(monkeypatch, escalation_module, None)
-    decision = check_question(question)
+    decision, _ = check_question(question)
     assert decision.escalate and decision.category == EscalationCategory.EMERGENCY
     assert fake.calls == 0
 
@@ -47,14 +47,25 @@ def test_emergencies_are_caught_by_rules_without_calling_the_llm(monkeypatch, qu
 def test_classifier_result_becomes_an_escalation(monkeypatch):
     output = escalation_module.Classification(category=EscalationCategory.ACCOUNT_SPECIFIC, reason="claim status")
     use_fake_client(monkeypatch, escalation_module, output)
-    decision = check_question("Why was my claim rejected?")
+    decision, _ = check_question("Why was my claim rejected?")
     assert decision.escalate and decision.category == EscalationCategory.ACCOUNT_SPECIFIC
+
+
+def test_classifier_returns_search_query_in_policy_terms(monkeypatch):
+    output = escalation_module.Classification(
+        category=EscalationCategory.NONE, reason="general", search_query="pre-existing condition waiting period",
+    )
+    use_fake_client(monkeypatch, escalation_module, output)
+    decision, search_query = check_question("Diagnosed with cancer after joining, am I covered?")
+    assert not decision.escalate
+    assert search_query == "pre-existing condition waiting period"
 
 
 def test_classifier_cannot_pick_categories_reserved_for_code(monkeypatch):
     output = escalation_module.Classification(category=EscalationCategory.LOW_CONFIDENCE, reason="x")
     use_fake_client(monkeypatch, escalation_module, output)
-    assert not check_question("What is the waiting period?").escalate
+    decision, _ = check_question("What is the waiting period?")
+    assert not decision.escalate
 
 
 def test_weak_retrieval_escalates_and_strong_retrieval_passes():

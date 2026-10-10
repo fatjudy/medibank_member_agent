@@ -17,16 +17,18 @@ OK = EscalationDecision(escalate=False)
 class FakeRetriever:
     def __init__(self):
         self.calls = 0
+        self.queries = []
 
     def retrieve(self, question, top_k=5):
         self.calls += 1
+        self.queries.append(question)
         return [make_retrieved(1)]
 
 
 @pytest.fixture
 def agent(monkeypatch, tmp_path):
     monkeypatch.setattr(agent_module, "LOG_PATH", tmp_path / "log.jsonl")
-    monkeypatch.setattr(agent_module, "check_question", lambda q: OK)
+    monkeypatch.setattr(agent_module, "check_question", lambda q: (OK, "policy terms"))
     monkeypatch.setattr(agent_module, "check_retrieval", lambda chunks: OK)
     monkeypatch.setattr(agent_module, "check_answer", lambda a: OK)
     monkeypatch.setattr(agent_module, "generate_answer", lambda q, chunks: GOOD_ANSWER)
@@ -40,9 +42,17 @@ def test_happy_path_returns_answer_with_sources(agent):
     assert response.answer == GOOD_ANSWER and len(response.sources) == 1
 
 
+def test_search_uses_question_plus_policy_terms_but_answers_original_question(agent, monkeypatch):
+    answered = []
+    monkeypatch.setattr(agent_module, "generate_answer", lambda q, chunks: answered.append(q) or GOOD_ANSWER)
+    agent.handle("Am I covered for cancer?")
+    assert agent.retriever.queries == ["Am I covered for cancer? policy terms"]
+    assert answered == ["Am I covered for cancer?"]
+
+
 def test_escalation_before_retrieval_skips_search_and_answering(agent, monkeypatch):
     decision = EscalationDecision(escalate=True, category=EscalationCategory.ACCOUNT_SPECIFIC, reason="claim")
-    monkeypatch.setattr(agent_module, "check_question", lambda q: decision)
+    monkeypatch.setattr(agent_module, "check_question", lambda q: (decision, ""))
     monkeypatch.setattr(agent_module, "generate_answer", lambda q, c: pytest.fail("should not answer"))
 
     response = agent.handle("Why was my claim rejected?")

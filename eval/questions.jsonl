@@ -15,6 +15,8 @@
 {"id": "A15", "question": "What does the accident waiting period waiver mean?", "expected_route": "answer", "expected_sections": ["Accident"], "expected_facts": []}
 {"id": "A16", "history": ["What is the waiting period for pregnancy?"], "question": "What about for extras like dental?", "expected_route": "answer", "expected_sections": ["Extras Cover > Waiting periods", "F3.9"], "expected_facts": ["2.?month|two.?month"]}
 {"id": "A17", "question": "I'm expecting a baby in a few months, when will my cover pay for the birth?", "expected_route": "answer", "expected_sections": ["Having a baby", "F3.7"], "expected_facts": ["12.?month|twelve.?month"]}
+{"id": "A18", "question": "My friend get diagnose with breast cancer after she joined medibank for 1 year, will she be covered?", "expected_route": "answer", "expected_sections": ["Pre-existing", "Waiting period", "F3.3", "F3.4", "F3.7"], "expected_facts": ["pre.?existing|waiting period"]}
+{"id": "A19", "question": "My mum has had a bad hip for years. If she joins now, can she get a hip replacement straight away?", "expected_route": "answer", "expected_sections": ["Pre-existing", "F3.3", "F3.4", "F3.7"], "expected_facts": ["12.?month|twelve.?month"]}
 {"id": "E01", "question": "Why was my claim for my dental visit rejected last week?", "expected_route": "account_specific", "expected_sections": [], "expected_facts": []}
 {"id": "E02", "question": "Can you change my address and phone number on my policy?", "expected_route": "account_specific", "expected_sections": [], "expected_facts": []}
 {"id": "E03", "question": "How much of my extras limit have I used this year?", "expected_route": "account_specific", "expected_sections": [], "expected_facts": []}

@@ -24,6 +24,7 @@ class Agent:
     def __init__(self, retriever: Retriever | None = None) -> None:
         self.retriever = retriever or Retriever()
         self.history: list[dict] = []
+        self.last_search_query = ""   # what was actually searched, for logging
 
     def rewrite_followup(self, question: str) -> str:
         """Turn 'what about extras?' into a full question using the recent conversation."""
@@ -52,11 +53,14 @@ class Agent:
         return response
 
     def _run(self, question: str) -> ChatResponse:
-        decision = check_question(question)
+        decision, search_query = check_question(question)
+        self.last_search_query = ""
         if decision.escalate:
             return escalated(decision)
 
-        chunks = self.retriever.retrieve(question)
+        # Search with the member's words plus the policy-term rewrite; answer the original question.
+        self.last_search_query = f"{question} {search_query}".strip()
+        chunks = self.retriever.retrieve(self.last_search_query)
         decision = check_retrieval(chunks)
         if decision.escalate:
             return escalated(decision, chunks)
@@ -78,6 +82,7 @@ class Agent:
             "time": datetime.now(timezone.utc).isoformat(),
             "question": question,
             "standalone_question": standalone,
+            "search_query": self.last_search_query,
             "escalated": response.escalation.escalate,
             "category": response.escalation.category.value,
             "reason": response.escalation.reason,

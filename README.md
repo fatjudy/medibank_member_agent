@@ -36,8 +36,8 @@ On macOS/Linux use `.venv/bin/python` instead of `.venv\Scripts\python.exe`.
 | Command | What it does | API calls |
 |---|---|---|
 | `python -m streamlit run app.py` | Chat UI with citations, escalation badges and a debug view | yes |
-| `python -m pytest -q` | 40 offline tests (Claude is replaced by fakes) | no |
-| `python -m eval.run_eval` | Runs the 28-question evaluation set and writes `eval/results.md` | yes (~60, a few cents) |
+| `python -m pytest -q` | 42 offline tests (Claude is replaced by fakes) | no |
+| `python -m eval.run_eval` | Runs the 30-question evaluation set and writes `eval/results.md` | yes (~60, a few cents) |
 | `python -m src.agent` | Command-line demo of a short conversation | yes |
 
 ## How it works
@@ -67,8 +67,10 @@ text is split into **285 section-sized chunks**, each tagged with document, page
    the last 3 turns. Every later step works on one complete question.
 2. **① Question check** – emergencies (chest pain, overdose, self-harm...) are caught by regex rules,
    with no LLM call. Everything else goes to a Claude classifier that routes to *answer*,
-   *account-specific*, *complaint*, *medical advice* or *out of scope*.
-3. **Search** – BM25 (exact terms like "pre-existing") and a local MiniLM embedding model (paraphrases
+   *account-specific*, *complaint*, *medical advice* or *out of scope*. The same call also rewrites
+   the question in policy terms for search (e.g. "diagnosed with cancer after joining" → pre-existing
+   condition, waiting periods), because members rarely use the documents' vocabulary.
+3. **Search** – using the member's words plus the policy-term rewrite, BM25 (exact terms like "pre-existing") and a local MiniLM embedding model (paraphrases
    like "expecting a baby" → "Pregnancy and birth") each rank all chunks; Reciprocal Rank Fusion
    combines the two rankings into the top 5.
 4. **② Retrieval check** – if the best cosine similarity is below 0.30, nothing in the documents
@@ -125,6 +127,7 @@ data/raw/         the two source PDFs
 | **Hybrid search (BM25 + embeddings, RRF)** | BM25 is precise on policy terms; embeddings handle paraphrases. RRF combines rankings without calibrating two score scales. The raw cosine score is kept as an absolute "is anything relevant?" signal. |
 | **Font-based chunking by section** | Chunks follow the documents' own structure (numbered rules, guide topics), so each chunk is one topic and citations are meaningful. |
 | **Local embedding model** | Free, fast, and no document text leaves the machine for indexing. |
+| **Search query rewritten into policy terms** | Members ask in everyday language; the documents use policy terms. Found when "diagnosed with breast cancer after 1 year, am I covered?" retrieved 0 relevant sections; with the rewrite, 4 of 5 are relevant. It piggybacks on the classifier call, so it adds no latency, and the original question is kept in the search and is what Claude answers. |
 | **Follow-ups rewritten before anything else** | Search and classification always see a complete question, and the answer step never sees earlier answers, so it stays grounded in the documents. |
 
 **Model:** `claude-opus-5-5` (set in `src/answer.py`) at low effort, with structured outputs and
@@ -133,19 +136,21 @@ server-side refusal fallback. The rewrite and classification steps are simple en
 
 ## Evaluation
 
-`eval/questions.jsonl` has 28 hand-written cases with ground truth taken from the PDFs: 17 answerable
-questions (including a follow-up and a paraphrase with no shared keywords) and 11 that should be
+`eval/questions.jsonl` has 30 hand-written cases with ground truth taken from the PDFs: 19 answerable
+questions (including a follow-up, a paraphrase with no shared keywords, and two everyday-language
+questions about pre-existing conditions) and 11 that should be
 escalated (account-specific, complaint, medical advice, out of scope, emergency, and an in-domain
 question the documents can't answer).
 
 | Metric | Result |
 |---|---|
-| Routing accuracy (answer vs. correct escalation category) | 28/28 |
+| Routing accuracy (answer vs. correct escalation category) | 30/30 |
 | Escalation precision / recall | 11/11 · 11/11 |
-| Retrieval hit@5 (expected section in top 5) | 17/17 |
-| Citation accuracy (answer cites an expected section) | 17/17 |
-| Key facts present (e.g. "12 months", "30 days") | 10/10 |
-| Latency per question | median 5.2s, max 10.1s |
+| Retrieval hit@5 (expected section in top 5) | 19/19 |
+| Citation accuracy (answer cites an expected section) | 19/19 |
+| Key facts present (e.g. "12 months", "30 days") | 12/12 |
+| Answer length | median 61 words, max 74 |
+| Latency per question | median 4.9s, max 9.8s |
 
 Per-question results are in [eval/results.md](eval/results.md).
 

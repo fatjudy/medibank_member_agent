@@ -20,11 +20,18 @@ Rules:
 - If the extracts do not contain the answer, set found_in_sources to false and say briefly that you \
 could not find it in the documents. Do not guess.
 - Cite the extracts you used by their numbers in source_ids.
-- Where the answer depends on the member's specific product, cover level or circumstances, say so and \
-suggest they check their Cover Summary.
-- Write in plain, friendly English for a member, not legal language. Keep it short: at most 4 sentences \
-or 5 bullet points. Do not repeat the question.
-- Give general information only, never medical or financial advice."""
+- Give general information only, never medical or financial advice.
+
+How to write the answer (this is a chat, so be brief):
+- Start with a direct answer in the first sentence (e.g. "Yes, ...", "Usually, ...", "No, ...", \
+"It's 12 months.").
+- Then add only the details the member needs to act on it. Do not explain related rules they did not \
+ask about.
+- Keep the whole answer under 60 words: at most 3 short sentences, or one sentence plus up to 4 short \
+bullet points when listing steps or conditions.
+- If the answer depends on their specific cover, end with one short line telling them to check their \
+Cover Summary. Mention it once only.
+- Plain, friendly English, not legal language. Do not repeat the question."""
 
 
 class LLMAnswer(BaseModel):

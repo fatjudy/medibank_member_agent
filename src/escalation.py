@@ -60,7 +60,13 @@ with them, which treatment is best).
 - out_of_scope: unrelated to Medibank health insurance membership (other products, general chat, \
 other companies, anything else).
 
-Give a short reason (under 15 words)."""
+Give a short reason (under 15 words).
+
+Also write search_query: the question rephrased in the terms Medibank's Fund Rules and Member Guide \
+would use, so a document search can find the right section. Members often use everyday words, so \
+translate them into policy concepts (e.g. "diagnosed after joining" -> pre-existing condition and \
+waiting periods; "dentist" -> extras cover dental). Use terms such as hospital cover, extras cover, \
+waiting period, pre-existing condition, benefits, limits, claims, premiums, suspension, cancellation."""
 
 
 class Classification(BaseModel):
@@ -69,6 +75,7 @@ class Classification(BaseModel):
         description="One of: none, account_specific, complaint, medical_advice, out_of_scope."
     )
     reason: str
+    search_query: str = Field(default="", description="The question rephrased in policy terms, for document search.")
 
 
 # The only categories the LLM classifier may return; EMERGENCY and LOW_CONFIDENCE are set by our code.
@@ -87,10 +94,13 @@ def escalate(category: EscalationCategory, reason: str) -> EscalationDecision:
 NO_ESCALATION = EscalationDecision(escalate=False)
 
 
-def check_question(question: str) -> EscalationDecision:
-    """Before retrieval: emergency rules first, then an LLM intent classifier."""
+def check_question(question: str) -> tuple[EscalationDecision, str]:
+    """Before retrieval: emergency rules first, then an LLM intent classifier.
+
+    Also returns a search query in policy terms (empty if none), produced by the same LLM call.
+    """
     if EMERGENCY_RE.search(question):
-        return escalate(EscalationCategory.EMERGENCY, "Question mentions a possible emergency")
+        return escalate(EscalationCategory.EMERGENCY, "Question mentions a possible emergency"), ""
 
     response = get_client().messages.parse(
         model=MODEL,
@@ -101,9 +111,11 @@ def check_question(question: str) -> EscalationDecision:
         output_format=Classification,
     )
     result = response.parsed_output
-    if result is None or result.category not in CLASSIFIER_CATEGORIES:
-        return NO_ESCALATION
-    return escalate(result.category, result.reason)
+    if result is None:
+        return NO_ESCALATION, ""
+    if result.category not in CLASSIFIER_CATEGORIES:
+        return NO_ESCALATION, result.search_query
+    return escalate(result.category, result.reason), result.search_query
 
 
 def check_retrieval(chunks: list[RetrievedChunk]) -> EscalationDecision:
@@ -138,9 +150,9 @@ if __name__ == "__main__":
         "Does my cover include IVF?",
         "How much does it cost to rent a car in Sydney?",
     ]:
-        decision = check_question(q)
+        decision, search_query = check_question(q)
         if not decision.escalate:
-            decision = check_retrieval(retriever.retrieve(q))
+            decision = check_retrieval(retriever.retrieve(f"{q} {search_query}"))
         top = max(c.semantic_score for c in retriever.retrieve(q))
         label = decision.category.value if decision.escalate else "answer"
         print(f"{label:<17} sem={top:.2f}  {q}\n{'':<17} {decision.reason}")

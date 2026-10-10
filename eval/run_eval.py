@@ -57,8 +57,10 @@ def run_case(case: dict, retriever: Retriever) -> dict:
     }
 
     if case["expected_sections"]:
-        # Retrieval is scored on its own, even if the case was (wrongly) escalated before search.
-        retrieved = [rc.chunk.section for rc in retriever.retrieve(standalone, top_k=TOP_K)]
+        # Score the query the agent actually searched with; if it escalated before searching,
+        # still score retrieval on the standalone question.
+        query = agent.last_search_query or standalone
+        retrieved = [rc.chunk.section for rc in retriever.retrieve(query, top_k=TOP_K)]
         result["retrieval_hit"] = matches_any(retrieved, case["expected_sections"])
         if response.answer:
             cited = [c.section for c in response.answer.citations]
